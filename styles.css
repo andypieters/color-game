@@ -66,3 +66,11 @@ button{
     display: inline-block;
     width:20%;
 }
+.github-ribbon{
+    float:right;
+
+}
+.github-ribbon img{
+    height: 149px;
+    width: 149px;
+}
