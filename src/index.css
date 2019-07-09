@@ -1,0 +1,16 @@
+.App{
+  width: 100%;
+  margin: auto;
+}
+.square{
+  width: 30%;
+  float: left;
+  margin: 1.5%;
+  border-radius: 10%;
+  transition: all linear .3s;
+}
+.square:before{
+  display: block;
+  padding-top: 100%;
+  content: "";
+}
