@@ -1,8 +1,5 @@
 .square{
-    width: 30%;
-    max-width: 200px;
-    float: left;
-    margin: 1.5%;
+    width: 100%;
     border-radius: 10%;
     transition: all linear .3s;
   }
@@ -10,4 +7,13 @@
     display: block;
     padding-top: 100%;
     content: "";
+  }
+  .lightgray{
+      color: lightgray;
+  }
+  .red{
+      color: red;
+  }
+  .life{
+    transition: color ease-in .2s;
   }

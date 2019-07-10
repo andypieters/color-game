@@ -1,12 +1,16 @@
 import React from 'react';
 import './ColorGame.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 class Square extends React.Component {
 
     render() {
-        return <div onClick={this.props.onClick} className="square" style={{
-            opacity: this.props.color.hidden ? '0' : '1',
-            backgroundColor: this.props.color.toHex()
-        }}></div>;
+        return <div className='col-4 col-lg-2 col-md-3 mb-2'>
+            <div onClick={this.props.onClick} className="square " style={{
+                opacity: this.props.color.hidden ? '0' : '1',
+                backgroundColor: this.props.color.toHex()
+            }}></div>
+        </div>;
     }
 }
 
@@ -49,50 +53,42 @@ class Board extends React.Component {
             return <Square key={i} color={color} onClick={() => this.props.onClick(color)} />;
         }
         ));
-        return <div className="board">
+        return <div className="row">
             {colors}
         </div>;
     }
 }
 export class ColorGame extends React.Component {
     timerID;
+    totalLives = 5;
     constructor(props) {
         super(props);
 
         const difficulty = props.difficulty ? props.difficulty : 6;
 
+        let highScore = localStorage.getItem('highScore') || 0;
+
         this.state = {
             difficulty: difficulty,
             colors: this.getColors(difficulty),
             selected: Math.round(Math.random() * (difficulty - 1)),
-            lives: 3,
+            lives: this.totalLives,
             score: 0,
-            currentScore: difficulty,
+            highScore: highScore,
             gameOver: false,
+            mode: 'rgb'
         };
         this.newGame = this.newGame.bind(this);
         this.reset = this.reset.bind(this);
+        this.switchMode = this.switchMode.bind(this);
+    }
+    switchMode() {
+        const newMode = this.state.mode === 'rgb' ? 'hex' : 'rgb';
+        this.setState({ mode: newMode });
     }
     newGame() {
-        this.setState({ lives: 3, score: 0 });
+        this.setState({ lives: this.totalLives, score: 0 });
         this.reset();
-    }
-    componentDidMount() {
-        this.timerID = setInterval(
-            () => this.tick(),
-            10000
-        );
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerID);
-    }
-
-    tick() {
-        if (this.state.currentScore === 1) return;
-        this.setState({
-            currentScore: this.state.currentScore - 1
-        });
     }
 
     clicked(color) {
@@ -106,7 +102,7 @@ export class ColorGame extends React.Component {
 
             this.setState({
                 colors: colors,
-                score: this.state.score + this.state.currentScore
+                score: this.state.score + 1
             });
 
             setTimeout(this.reset, 1000);
@@ -117,12 +113,23 @@ export class ColorGame extends React.Component {
             colors[idx].hidden = true;
             this.setState({ colors: colors, lives: lives });
 
-            if (lives <= 0 && this.props.onGameOver) {
-                this.props.onGameOver(this.state.score);
-            } 
+            if (lives <= 0) {
+                this.gameOver();
+            }
         }
     }
+    gameOver() {
+        if (this.state.score > this.state.highScore) {
+            localStorage.setItem('highScore', this.state.score);
+            this.setState({ highScore: this.state.score, gameOver: true });
+            alert('New highscore!');
+        } else {
+            this.setState({ gameOver: true })
+            alert('Game over!');
+        }
 
+        this.newGame();
+    }
     getColors(difficulty) {
         let colors = [];
         for (let i = 0; i < difficulty; i++) {
@@ -131,7 +138,6 @@ export class ColorGame extends React.Component {
         return colors;
     }
     changeDifficulty(difficulty) {
-        console.log(difficulty);
         this.setState({
             difficulty: difficulty,
             colors: this.getColors(difficulty),
@@ -146,17 +152,34 @@ export class ColorGame extends React.Component {
         });
     }
     displayColor() {
-        return this.state.colors[this.state.selected] ? this.state.colors[this.state.selected].toRgb() : '?';
+        let color = this.state.colors[this.state.selected];
+
+        return this.state.mode === 'rgb' ? color.toRgb() : color.toHex();
     }
     render() {
-        return <div>
-            <input type="range" min='2' max='15' value={this.state.difficulty} onChange={(e) => this.changeDifficulty(e.target.value)} ></input>
-            {this.state.lives <= 0 ? <button onClick={this.newGame}>New Game</button> : null}
-            <h3>{this.displayColor()}</h3>
-            <h3>Current: {this.state.currentScore}</h3>
+        let lives = [];
+        for (let i = 0; i < this.totalLives; i++) {
+            lives.push(
+                <Heart key={i} broken={this.state.lives < i + 1}></Heart>
+            );
+        }
+
+        return <div className='container'>
+            <h3>highScore: {this.state.highScore}</h3>
             <h3>Score: {this.state.score}</h3>
-            <h3>Lives: {this.state.lives}</h3>
+            <h3>{lives}</h3>
+            <h1 onClick={this.switchMode}>{this.displayColor()}</h1>
             <Board onClick={(color) => this.clicked(color)} colors={this.state.colors}></Board>
         </div>
     }
+}
+
+function Heart(props) {
+    let classNames = ['fas', 'life'];
+    if (props.broken) {
+        classNames.push('fa-heart-broken', 'lightgray');
+    } else {
+        classNames.push('fa-heart', 'red');
+    }
+    return <i className={classNames.join(' ')}></i>;
 }

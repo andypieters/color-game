@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <ColorGame onGameOver={(score) => alert("Game Over! \n\n Score: "+score)} />
+      <ColorGame difficulty="9" />
     </div>
   );
 }
