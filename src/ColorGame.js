@@ -1,6 +1,7 @@
 import React from 'react';
 import './ColorGame.css';
-import 'bootstrap/dist/css/bootstrap.css';
+// import 'bootstrap/dist/css/bootstrap.css';
+import './bootstrap.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 class Square extends React.Component {
 
